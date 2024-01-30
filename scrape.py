@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from time import sleep
 from urllib.parse import urljoin, urlparse
+from datetime import datetime
 
 class colors:
     GREEN = '\033[92m'
@@ -16,17 +17,21 @@ class colors:
     RESET = '\033[0m'
     BOLD = '\033[1m'
 
+all_ems = 0
+
 def log(val):
     with open("log.txt", "a") as f:
         f.write(val)
         f.write("\n")
                 
 def crawl_emails(base_url, max_links=50):
+    global all_ems
     visited_urls = set()
     queue = [base_url]
     base_domain = urlparse(base_url).netloc
     link_count = 0
     all_emails = set()
+
     log(f"Going to {base_url}")
 
     while queue and link_count < max_links:
@@ -60,6 +65,7 @@ def crawl_emails(base_url, max_links=50):
                     log(f"Found email on {url}")
                     for email in page_emails:
                         all_emails.add(email)
+                        all_ems+=1
                     
             else:
                 with open("errors.txt", "a") as f:
@@ -80,7 +86,8 @@ def crawl_emails(base_url, max_links=50):
     else:
         print(" ")
         print(colors.RED + f"no emails found on {base_domain}")
-
+        print(" ")
+    
 def get_maps(keyword, location):
     return f"https://www.google.com/maps/search/{keyword}+in+{location}/"
 
@@ -123,15 +130,12 @@ def main(args):
     keyword = args.keyword
     location = args.location
     url = get_maps(keyword, location)
+    start_time = datetime.now()
     driver.get(url)
     sleep(4)
-    print("Collecting map data from:", driver.current_url)
+    print("Searching:", driver.current_url)
 
     website_urls = get_websites(driver, args.num_results)
-    
-    print(" ")
-    for url in website_urls:
-        print(colors.YELLOW + "Website URL:", url)
     
     sleep(2)
     driver.quit()
@@ -140,7 +144,21 @@ def main(args):
     with open("output.json", "a") as json_file:
         json_file.write("]\n")
 
+    end_time = datetime.now()
+    total_time = end_time - start_time
+    mins = total_time.total_seconds() // 60
+    secs = total_time.total_seconds() % 60
+
+    all_webs = len(website_urls)
+
+
     print(colors.GREEN + "Successfully saved all to output.json")
+
+    print(" ")
+    print(colors.BOLD + "Statistics\n")
+    print("* Total number of websites: ", all_webs)
+    print("* Total unique emails found: ", all_ems)
+    print("* Total time taken to run: ", f"{mins:.0f} minutes {secs:.2f} seconds")
 
     with open("log.txt", "w") as f:
         f.write("Cleared log. Please run file again to get logs.")
@@ -151,6 +169,6 @@ if __name__ == "__main__":
     parser.add_argument('-f', '--file', type=str, help='File containing keywords')
     parser.add_argument('-i', '--keyword', nargs='+', default="agency", type=str, help='Keywords to search for')
     parser.add_argument('-l', '--location', type=str, default='leeds', help='Location to search')
-    parser.add_argument('-n', '--num_results', type=int, default=10, help='Number of businesses to scrape')
+    parser.add_argument('-n', '--num_results', type=int, default=4, help='Number of businesses to scrape')
     args = parser.parse_args()
     main(args)
