@@ -14,6 +14,7 @@ class colors:
     YELLOW = '\033[93m'
     RED = '\033[91m'
     RESET = '\033[0m'
+    BOLD = '\033[1m'
 
 def log(val):
     with open("log.txt", "a") as f:
@@ -106,6 +107,7 @@ def main(args):
     print("*"+colors.GREEN+" Location:   "+colors.RESET, args.location)
     print("*"+colors.GREEN+" No. of Websites:"+colors.RESET, args.num_results)
     print("*******************************************")
+    print(colors.BOLD + "\n Logs are shown in logs.txt to clean up terminal. The code is NOT hanging. \n" + colors.RESET)
 
     with open("output.json", "w") as json_file:
         json_file.write("[\n")
@@ -132,11 +134,12 @@ def main(args):
     sleep(2)
     driver.quit()
     print(" ")
-    print(colors.GREEN + "Successfully saved all to output.json")
-
+    
     with open("output.json", "a") as json_file:
         json_file.write("]\n")
-    
+
+    print(colors.GREEN + "Successfully saved all to output.json")
+
     with open("log.txt", "w") as f:
         f.write("Cleared log. Please run file again to get logs.")
 
