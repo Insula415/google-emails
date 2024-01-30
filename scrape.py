@@ -107,7 +107,9 @@ def main(args):
     print("*"+colors.GREEN+" Location:   "+colors.RESET, args.location)
     print("*"+colors.GREEN+" No. of Websites:"+colors.RESET, args.num_results)
     print("*******************************************")
-    print(colors.BOLD + "\n Logs are shown in logs.txt to clean up terminal. The code is NOT hanging. \n" + colors.RESET)
+    print(" ")
+    print(colors.BOLD + "Logs are shown in logs.txt to clean up terminal. The code is NOT hanging. \n" )
+    print("Alternatively errors are shown in errors.txt, these are basic url errors but provide good insight into what information is being scraped. \n" + colors.RESET)
 
     with open("output.json", "w") as json_file:
         json_file.write("[\n")
