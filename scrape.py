@@ -155,7 +155,9 @@ def main(args):
     print(colors.GREEN + "Successfully saved all to output.json")
 
     print(" ")
-    print(colors.BOLD + "Statistics\n")
+    print("*******************************************")
+    print("*          "+colors.YELLOW+"Search Parameters"+colors.BOLD+"              *")
+    print("*******************************************")
     print("* Total number of websites: ", all_webs)
     print("* Total unique emails found: ", all_ems)
     print("* Total time taken to run: ", f"{mins:.0f} minutes {secs:.2f} seconds")
