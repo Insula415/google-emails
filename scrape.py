@@ -97,9 +97,19 @@ def get_websites(driver, num_results):
     return website_urls
 
 def main(args):
+    print("*******************************************")
+    print("*          "+colors.YELLOW+"Search Parameters"+colors.RESET+"              *")
+    print("*******************************************")
+    print("*"+colors.GREEN+ " File:"+colors.RESET+"       ", args.file if args.file else "Not specified")
+    
+    print("*"+colors.GREEN+" Keyword:    "+colors.RESET, args.keyword)
+    print("*"+colors.GREEN+" Location:   "+colors.RESET, args.location)
+    print("*"+colors.GREEN+" No. of Websites:"+colors.RESET, args.num_results)
+    print("*******************************************")
+
     with open("output.json", "w") as json_file:
         json_file.write("[\n")
-
+    
     options = webdriver.ChromeOptions()
     options.add_argument("--remote-debugging-port=9222")
     options.add_argument("--enable-automation")
