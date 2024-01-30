@@ -18,7 +18,6 @@ Advanced usage: `python3 scrape.py -f keywords.txt -i newkeyword anotherkeyword 
 `pip3 install requirements.txt`
 
 ## Release Notes
----
 ### 1.0.0
 
 Initial commit
