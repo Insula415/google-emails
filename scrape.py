@@ -3,9 +3,11 @@ import requests
 import re 
 import xml.etree.ElementTree as ET
 import json
+import time
 
 from bs4 import BeautifulSoup
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 from time import sleep
 from urllib.parse import urljoin, urlparse
 from datetime import datetime
@@ -63,9 +65,19 @@ def crawl_emails(base_url, max_links=50):
 
                 if page_emails:
                     log(f"Found email on {url}")
-                    for email in page_emails:
+
+                for email in page_emails:
+                    if '.com' in email or '.co.uk' in email:
+                        index = email.rfind('.com') if '.com' in email else email.rfind('.co.uk')
+                        stripped = email[:index + len('.com') if '.com' in email else index + len('.co.uk')]
+                        all_emails.add(stripped)
+                        all_ems += 1
+                    else:
                         all_emails.add(email)
-                        all_ems+=1
+                        all_ems += 1
+
+
+
                     
             else:
                 with open("errors.txt", "a") as f:
@@ -78,13 +90,13 @@ def crawl_emails(base_url, max_links=50):
                 f.write("\n")
 
     if all_emails:
-        print(colors.GREEN + f"{all_emails}" + colors.RESET + " found on " + colors.YELLOW + f"{base_domain}")
+        print(colors.GREEN + f"{all_emails}" + colors.RESET + " found on " + colors.YELLOW + f"{base_domain}" + colors.RESET)
+        print(" ")
         base_url_data = {"url": base_domain, "emails": list(all_emails)}
         with open("output.json", "a") as json_file:
             json.dump(base_url_data, json_file, indent=2)
             json_file.write(",\n")
     else:
-        print(" ")
         print(colors.RED + f"no emails found on {base_domain}")
         print(" ")
     
@@ -92,16 +104,38 @@ def get_maps(keyword, location):
     return f"https://www.google.com/maps/search/{keyword}+in+{location}/"
 
 def get_websites(driver, num_results):
+    print("Scrolling for 10 seconds...")
+    print(" ")
+    scroll_box = driver.find_element(By.XPATH, '/html/body/div[2]/div[3]/div[8]/div[9]/div/div/div[1]/div[2]/div/div[1]/div/div/div[1]/div[1]')
+
+    start_time = time.time()
+    current_time = start_time
+
+    while current_time - start_time < 10:  # Scroll for 10 seconds
+        scroll_box = driver.find_element(By.XPATH, '/html/body/div[2]/div[3]/div[8]/div[9]/div/div/div[1]/div[2]/div/div[1]/div/div/div[1]/div[1]')
+        driver.execute_script("arguments[0].scrollTo(0, arguments[0].scrollHeight);", scroll_box)
+        sleep(1) 
+        current_time = time.time()
+    
     soup = BeautifulSoup(driver.page_source, "html.parser")
+
     website_urls = []
     for link in soup.find_all('a', {'data-value': 'Website'}):
         website_url = link.get('href')
         if website_url and "https" in website_url:
-            crawl_emails(website_url)
-            sleep(5)
             website_urls.append(website_url)
             if len(website_urls) >= num_results:
                 break
+    
+
+    print(colors.BOLD + f"Websites found: {len(website_urls)}")
+
+    webcount = 1
+    for url in website_urls:
+        print(f"Scraping {webcount} of {len(website_urls)}" + colors.RESET)
+        crawl_emails(url)
+        webcount += 1
+
     return website_urls
 
 def main(args):
@@ -169,8 +203,9 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Google Maps Web Scraper')
     parser.add_argument('-f', '--file', type=str, help='File containing keywords')
-    parser.add_argument('-i', '--keyword', nargs='+', default="agency", type=str, help='Keywords to search for')
+    parser.add_argument('-i', '--keyword', nargs='+', default="agency", type=str, help='Keywords to search for. Sentences should be concatenated with + e.g. website+agency')
     parser.add_argument('-l', '--location', type=str, default='leeds', help='Location to search')
-    parser.add_argument('-n', '--num_results', type=int, default=4, help='Number of businesses to scrape')
+    parser.add_argument('-n', '--num_results', type=int, default=100, help='Number of businesses to scrape')
+    parser.add_argument('-help', action='help', help='Show this help message and exit')
     args = parser.parse_args()
     main(args)
