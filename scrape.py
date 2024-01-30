@@ -25,7 +25,14 @@ def log(val):
     with open("log.txt", "a") as f:
         f.write(val)
         f.write("\n")
-                
+
+"""
+Scrapes emails from webpages. Starts from the base URL and iterates through links found on each page. 
+
+base_url = website url 
+max_links = max number of links indexed from the base url
+"""
+
 def crawl_emails(base_url, max_links=50):
     global all_ems
     visited_urls = set()
