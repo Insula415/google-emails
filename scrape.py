@@ -148,7 +148,7 @@ def main(args):
     print("*          "+colors.YELLOW+"Search Parameters"+colors.RESET+"              *")
     print("*******************************************")
     print("*"+colors.GREEN+ " File:"+colors.RESET+"       ", args.file if args.file else "Not specified")
-    
+    print("*" + colors.GREEN + " Headless?" + colors.RESET + "     ", args.headless)
     print("*"+colors.GREEN+" Keyword:    "+colors.RESET, args.keyword)
     print("*"+colors.GREEN+" Location:   "+colors.RESET, args.location)
     print("*"+colors.GREEN+" No. of Websites:"+colors.RESET, args.num_results)
@@ -156,13 +156,15 @@ def main(args):
     print(" ")
     print(colors.BOLD + "Logs are shown in logs.txt to clean up terminal. The code is NOT hanging. \n" )
     print("Alternatively errors are shown in errors.txt, these are basic url errors but provide good insight into what information is being scraped. \n" + colors.RESET)
-
+    sleep(100)
     with open("output.json", "w") as json_file:
         json_file.write("[\n")
     
     options = webdriver.ChromeOptions()
     options.add_argument("--remote-debugging-port=9222")
     options.add_argument("--enable-automation")
+    if args.headless:
+        options.add_argument("--headless")
     driver = webdriver.Chrome(options=options)
     driver.implicitly_wait(10)
 
@@ -214,6 +216,7 @@ if __name__ == "__main__":
     parser.add_argument('-i', '--keyword', nargs='+', default="agency", type=str, help='Keywords to search for. Sentences should be concatenated with + e.g. website+agency')
     parser.add_argument('-l', '--location', type=str, default='leeds', help='Location to search')
     parser.add_argument('-n', '--num_results', type=int, default=10, help='Number of businesses to scrape')
+    parser.add_argument('-headless', '--headless', action='store_true', help='Run in headless mode')
     parser.add_argument('-help', action='help', help='Show this help message and exit')
     args = parser.parse_args()
     main(args)
