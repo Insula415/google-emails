@@ -171,12 +171,15 @@ def main(args):
     url = get_maps(keyword, location)
     start_time = datetime.now()
     driver.get(url)
-    sleep(4)
+    
+    if "consent" in driver.current_url:
+        print("Clicking reject...")
+        driver.find_element(By.XPATH, "//span[text()='Reject all'] | //button[text()='Reject all'] | //div[text()='Reject all']").click()
+
     print("Searching:", driver.current_url)
 
     website_urls = get_websites(driver, args.num_results)
     
-    sleep(2)
     driver.quit()
     print(" ")
     
