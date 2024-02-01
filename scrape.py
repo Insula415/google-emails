@@ -156,7 +156,6 @@ def main(args):
     print(" ")
     print(colors.BOLD + "Logs are shown in logs.txt to clean up terminal. The code is NOT hanging. \n" )
     print("Alternatively errors are shown in errors.txt, these are basic url errors but provide good insight into what information is being scraped. \n" + colors.RESET)
-    sleep(100)
     with open("output.json", "w") as json_file:
         json_file.write("[\n")
     
