@@ -1,16 +1,17 @@
 import argparse
 import requests
-import re 
+import re
 import xml.etree.ElementTree as ET
 import json
 import time
-
+import threading
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from time import sleep
 from urllib.parse import urljoin, urlparse
 from datetime import datetime
+from pynput.keyboard import Key, Listener
 
 class colors:
     GREEN = '\033[92m'
@@ -18,6 +19,7 @@ class colors:
     RED = '\033[91m'
     RESET = '\033[0m'
     BOLD = '\033[1m'
+    INVISIBLE = '\033[8m' 
 
 all_ems = 0
 
@@ -25,6 +27,15 @@ def log(val):
     with open("log.txt", "a") as f:
         f.write(val)
         f.write("\n")
+
+def on_press(key):
+    None
+    # if "q" or "Q" in format(key): 
+    #     print("quit this and add some logic here...")
+
+def keyboard_listener():
+    with Listener(on_press=on_press) as listener:
+        listener.join()
 
 """
 Scrapes emails from webpages. Starts from the base URL and iterates through links found on each page. 
@@ -83,7 +94,6 @@ def crawl_emails(base_url, max_links=50):
                         all_emails.add(email)
                         all_ems += 1
 
-                    
             else:
                 with open("errors.txt", "a") as f:
                     f.write(f"Failed to retrieve {url}. Status code: {response.status_code}")
@@ -155,7 +165,8 @@ def main(args):
     print("*******************************************")
     print(" ")
     print(colors.BOLD + "Logs are shown in logs.txt to clean up terminal. The code is NOT hanging. \n" )
-    print("Alternatively errors are shown in errors.txt, these are basic url errors but provide good insight into what information is being scraped. \n" + colors.RESET)
+    print("Alternatively errors are shown in errors.txt, these are basic url errors but provide good insight into what information is being scraped. \n" + colors.INVISIBLE)
+    
     with open("output.json", "w") as json_file:
         json_file.write("[\n")
     
@@ -174,7 +185,7 @@ def main(args):
     driver.get(url)
     
     if "consent" in driver.current_url:
-        print("Clicking reject...")
+        print(colors.RESET + "Clicking reject...")
         driver.find_element(By.XPATH, "//span[text()='Reject all'] | //button[text()='Reject all'] | //div[text()='Reject all']").click()
 
     print("Searching:", driver.current_url)
@@ -210,12 +221,18 @@ def main(args):
 
 
 if __name__ == "__main__":
+    keyboard_thread = threading.Thread(target=keyboard_listener)
+    keyboard_thread.start()
+
     parser = argparse.ArgumentParser(description='Google Maps Web Scraper')
     parser.add_argument('-f', '--file', type=str, help='File containing keywords')
-    parser.add_argument('-i', '--keyword', nargs='+', default="agency", type=str, help='Keywords to search for. Sentences should be concatenated with + e.g. website+agency')
+    parser.add_argument('-i', '--keyword', nargs='+', default="agency", type=str,
+                        help='Keywords to search for. Sentences should be concatenated with + e.g. website+agency')
     parser.add_argument('-l', '--location', type=str, default='leeds', help='Location to search')
     parser.add_argument('-n', '--num_results', type=int, default=10, help='Number of businesses to scrape')
     parser.add_argument('-headless', '--headless', action='store_true', help='Run in headless mode')
     parser.add_argument('-help', action='help', help='Show this help message and exit')
     args = parser.parse_args()
     main(args)
+
+    keyboard_thread.join()
