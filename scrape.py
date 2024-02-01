@@ -83,8 +83,6 @@ def crawl_emails(base_url, max_links=50):
                         all_emails.add(email)
                         all_ems += 1
 
-
-
                     
             else:
                 with open("errors.txt", "a") as f:
@@ -104,7 +102,7 @@ def crawl_emails(base_url, max_links=50):
             json.dump(base_url_data, json_file, indent=2)
             json_file.write(",\n")
     else:
-        print(colors.RED + f"no emails found on {base_domain}")
+        print(colors.RED + f"no emails found on {base_domain}" + colors.RESET)
         print(" ")
     
 def get_maps(keyword, location):
@@ -193,15 +191,15 @@ def main(args):
     all_webs = len(website_urls)
 
 
-    print(colors.GREEN + "Successfully saved all to output.json")
+    print(colors.GREEN + "Successfully saved all to output.json"+colors.BOLD)
 
     print(" ")
     print("*******************************************")
-    print("*          "+colors.YELLOW+"Search Parameters"+colors.BOLD+"              *")
+    print("*                 Statistics               *")
     print("*******************************************")
-    print("* Total number of websites: ", all_webs)
+    print(colors.GREEN+"* Total number of websites: ", all_webs)
     print("* Total unique emails found: ", all_ems)
-    print("* Total time taken to run: ", f"{mins:.0f} minutes {secs:.2f} seconds")
+    print("* Total time taken to run: ", f"{mins:.0f} minutes {secs:.2f} seconds" + colors.RESET)
 
     with open("log.txt", "w") as f:
         f.write("Cleared log. Please run file again to get logs.")
@@ -212,7 +210,7 @@ if __name__ == "__main__":
     parser.add_argument('-f', '--file', type=str, help='File containing keywords')
     parser.add_argument('-i', '--keyword', nargs='+', default="agency", type=str, help='Keywords to search for. Sentences should be concatenated with + e.g. website+agency')
     parser.add_argument('-l', '--location', type=str, default='leeds', help='Location to search')
-    parser.add_argument('-n', '--num_results', type=int, default=100, help='Number of businesses to scrape')
+    parser.add_argument('-n', '--num_results', type=int, default=10, help='Number of businesses to scrape')
     parser.add_argument('-help', action='help', help='Show this help message and exit')
     args = parser.parse_args()
     main(args)
